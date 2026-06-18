@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashir500/Fuse/internal/config"
+	"github.com/hashir500/Fuse/internal/money"
 	"github.com/hashir500/Fuse/internal/store"
 )
 
@@ -64,7 +65,7 @@ func Check(cfg config.BudgetConfig, spend store.PeriodSpend, requestCost float64
 
 func (h HardHit) Message() string {
 	return fmt.Sprintf("%s hard cap of %s exceeded. Current: %s, Request estimated max cost: %s.",
-		title(h.Period), dollars(h.CapAmount), dollars(h.CurrentSpend), dollars(h.RequestCost))
+		title(h.Period), money.Dollars(h.CapAmount), money.Dollars(h.CurrentSpend), money.Dollars(h.RequestCost))
 }
 
 func title(value string) string {
@@ -72,11 +73,4 @@ func title(value string) string {
 		return value
 	}
 	return strings.ToUpper(value[:1]) + value[1:]
-}
-
-func dollars(value float64) string {
-	if value > 0 && value < 0.01 {
-		return fmt.Sprintf("$%.4f", value)
-	}
-	return fmt.Sprintf("$%.2f", value)
 }

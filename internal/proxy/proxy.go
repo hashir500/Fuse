@@ -14,6 +14,7 @@ import (
 	"github.com/hashir500/Fuse/internal/budget"
 	"github.com/hashir500/Fuse/internal/config"
 	"github.com/hashir500/Fuse/internal/cost"
+	"github.com/hashir500/Fuse/internal/money"
 	"github.com/hashir500/Fuse/internal/provider"
 	"github.com/hashir500/Fuse/internal/store"
 )
@@ -78,7 +79,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, warning := range decision.SoftWarnings {
-		fmt.Fprintf(s.Stderr, "SOFT CAP: %s spend ($%.2f) exceeded. Current: $%.2f\n", title(warning.Period), warning.Soft, warning.Spend)
+		fmt.Fprintf(s.Stderr, "SOFT CAP: %s spend (%s) exceeded. Current: %s\n", title(warning.Period), money.Dollars(warning.Soft), money.Dollars(warning.Spend))
 	}
 
 	target, err := provider.TargetURL(providerName, s.Config, r.URL)
@@ -152,7 +153,7 @@ func (s *Server) writeBlocked(w http.ResponseWriter, ctx context.Context, reqInf
 		BlockReason:      reason,
 	})
 	fmt.Fprintf(s.Stderr, "BLOCKED: %s hard cap (%s) would be exceeded\n   Estimated max request cost: %s | Current spend: %s\n",
-		title(hit.Period), dollars(hit.CapAmount), dollars(hit.RequestCost), dollars(hit.CurrentSpend))
+		title(hit.Period), money.Dollars(hit.CapAmount), money.Dollars(hit.RequestCost), money.Dollars(hit.CurrentSpend))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusTooManyRequests)
@@ -178,11 +179,4 @@ func title(value string) string {
 		return value
 	}
 	return strings.ToUpper(value[:1]) + value[1:]
-}
-
-func dollars(value float64) string {
-	if value > 0 && value < 0.01 {
-		return fmt.Sprintf("$%.4f", value)
-	}
-	return fmt.Sprintf("$%.2f", value)
 }

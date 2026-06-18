@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/hashir500/Fuse/internal/money"
 	"github.com/hashir500/Fuse/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -30,12 +31,12 @@ var historyCmd = &cobra.Command{
 			if log.WasBlocked {
 				status = "blocked"
 			}
-			fmt.Fprintf(out, "%-16s  %-9s  %-28s  %-8d  $%-7.3f %s\n",
+			fmt.Fprintf(out, "%-16s  %-9s  %-28s  %-8d  %-10s %s\n",
 				log.Timestamp.Format("2006-01-02 15:04"),
 				log.Provider,
 				truncate(log.Model, 28),
 				log.TotalTokens,
-				log.EstimatedCost,
+				money.Dollars(log.EstimatedCost),
 				status,
 			)
 		}

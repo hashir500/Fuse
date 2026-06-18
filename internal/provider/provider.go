@@ -231,15 +231,20 @@ func parseGoogleResponse(body []byte) ResponseInfo {
 		Usage struct {
 			PromptTokenCount     int `json:"promptTokenCount"`
 			CandidatesTokenCount int `json:"candidatesTokenCount"`
+			ThoughtsTokenCount   int `json:"thoughtsTokenCount"`
 			TotalTokenCount      int `json:"totalTokenCount"`
 		} `json:"usageMetadata"`
 	}
 	_ = json.Unmarshal(body, &resp)
+	completionTokens := resp.Usage.CandidatesTokenCount + resp.Usage.ThoughtsTokenCount
+	if completionTokens == 0 && resp.Usage.TotalTokenCount > resp.Usage.PromptTokenCount {
+		completionTokens = resp.Usage.TotalTokenCount - resp.Usage.PromptTokenCount
+	}
 	return ResponseInfo{
 		Model: resp.Model,
 		Usage: cost.Usage{
 			PromptTokens:     resp.Usage.PromptTokenCount,
-			CompletionTokens: resp.Usage.CandidatesTokenCount,
+			CompletionTokens: completionTokens,
 			TotalTokens:      resp.Usage.TotalTokenCount,
 		},
 	}

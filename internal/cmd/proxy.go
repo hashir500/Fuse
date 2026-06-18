@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashir500/Fuse/internal/config"
+	"github.com/hashir500/Fuse/internal/money"
 	"github.com/hashir500/Fuse/internal/proxy"
 	"github.com/hashir500/Fuse/internal/store"
 	"github.com/spf13/cobra"
@@ -32,11 +33,11 @@ var proxyCmd = &cobra.Command{
 			return err
 		}
 		fmt.Fprintf(cmd.OutOrStdout(), "Fuse proxy running on %s\n", proxyAddr)
-		fmt.Fprintf(cmd.OutOrStdout(), "   Budgets: $%.2f/$%.2f daily | $%.2f/$%.2f weekly | $%.2f/$%.2f monthly\n",
-			cfg.Budgets.Daily.Soft, cfg.Budgets.Daily.Hard,
-			cfg.Budgets.Weekly.Soft, cfg.Budgets.Weekly.Hard,
-			cfg.Budgets.Monthly.Soft, cfg.Budgets.Monthly.Hard)
-		fmt.Fprintf(cmd.OutOrStdout(), "   Today: $%.2f / $%.2f\n", spend.Daily, cfg.Budgets.Daily.Hard)
+		fmt.Fprintf(cmd.OutOrStdout(), "   Budgets: %s/%s daily | %s/%s weekly | %s/%s monthly\n",
+			money.Dollars(cfg.Budgets.Daily.Soft), money.Dollars(cfg.Budgets.Daily.Hard),
+			money.Dollars(cfg.Budgets.Weekly.Soft), money.Dollars(cfg.Budgets.Weekly.Hard),
+			money.Dollars(cfg.Budgets.Monthly.Soft), money.Dollars(cfg.Budgets.Monthly.Hard))
+		fmt.Fprintf(cmd.OutOrStdout(), "   Today: %s / %s\n", money.Dollars(spend.Daily), money.Dollars(cfg.Budgets.Daily.Hard))
 
 		server := &proxy.Server{Config: cfg, Store: db, Stderr: os.Stderr}
 		return server.ListenAndServe(proxyAddr)

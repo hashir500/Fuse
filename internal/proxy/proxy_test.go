@@ -43,6 +43,14 @@ func TestProxyForwardsAuthHeaders(t *testing.T) {
 			headerValue: "Bearer sk-test",
 			response:    `{"model":"gpt-4.1","usage":{"prompt_tokens":1,"completion_tokens":3,"total_tokens":4}}`,
 		},
+		{
+			name:        "google api key",
+			path:        "/v1beta/models/gemini-2.5-flash:generateContent",
+			body:        `{"contents":[{"parts":[{"text":"hello"}]}],"generationConfig":{"maxOutputTokens":30}}`,
+			headerName:  "x-goog-api-key",
+			headerValue: "google-test",
+			response:    `{"modelVersion":"gemini-2.5-flash","usageMetadata":{"promptTokenCount":7,"candidatesTokenCount":2,"thoughtsTokenCount":24,"totalTokenCount":33}}`,
+		},
 	}
 
 	for _, tt := range tests {
@@ -106,6 +114,15 @@ func testConfig() *config.Config {
 					"gpt-4.1": {
 						InputCostPer1K:  0.002,
 						OutputCostPer1K: 0.008,
+					},
+				},
+			},
+			"google": {
+				BaseURL: "https://generativelanguage.googleapis.com",
+				Models: map[string]config.ModelCosts{
+					"gemini-2.5-flash": {
+						InputCostPer1K:  0.0003,
+						OutputCostPer1K: 0.0025,
 					},
 				},
 			},

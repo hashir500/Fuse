@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashir500/Fuse/internal/config"
+	"github.com/hashir500/Fuse/internal/money"
 	"github.com/hashir500/Fuse/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -30,9 +31,9 @@ var statusCmd = &cobra.Command{
 			return err
 		}
 		out := cmd.OutOrStdout()
-		fmt.Fprintf(out, "Today:   $%.2f / $%.2f  %s %d%%\n", spend.Daily, cfg.Budgets.Daily.Hard, bar(spend.Daily, cfg.Budgets.Daily.Hard), percent(spend.Daily, cfg.Budgets.Daily.Hard))
-		fmt.Fprintf(out, "Week:    $%.2f / $%.2f  %s %d%%\n", spend.Weekly, cfg.Budgets.Weekly.Hard, bar(spend.Weekly, cfg.Budgets.Weekly.Hard), percent(spend.Weekly, cfg.Budgets.Weekly.Hard))
-		fmt.Fprintf(out, "Month:   $%.2f / $%.2f  %s %d%%\n", spend.Monthly, cfg.Budgets.Monthly.Hard, bar(spend.Monthly, cfg.Budgets.Monthly.Hard), percent(spend.Monthly, cfg.Budgets.Monthly.Hard))
+		fmt.Fprintf(out, "Today:   %s / %s  %s %s\n", money.Dollars(spend.Daily), money.Dollars(cfg.Budgets.Daily.Hard), bar(spend.Daily, cfg.Budgets.Daily.Hard), percent(spend.Daily, cfg.Budgets.Daily.Hard))
+		fmt.Fprintf(out, "Week:    %s / %s  %s %s\n", money.Dollars(spend.Weekly), money.Dollars(cfg.Budgets.Weekly.Hard), bar(spend.Weekly, cfg.Budgets.Weekly.Hard), percent(spend.Weekly, cfg.Budgets.Weekly.Hard))
+		fmt.Fprintf(out, "Month:   %s / %s  %s %s\n", money.Dollars(spend.Monthly), money.Dollars(cfg.Budgets.Monthly.Hard), bar(spend.Monthly, cfg.Budgets.Monthly.Hard), percent(spend.Monthly, cfg.Budgets.Monthly.Hard))
 		return nil
 	},
 }
@@ -41,11 +42,15 @@ func init() {
 	rootCmd.AddCommand(statusCmd)
 }
 
-func percent(value, max float64) int {
+func percent(value, max float64) string {
 	if max <= 0 {
-		return 0
+		return "0%"
 	}
-	return int(math.Round((value / max) * 100))
+	pct := (value / max) * 100
+	if pct > 0 && pct < 10 {
+		return fmt.Sprintf("%.1f%%", pct)
+	}
+	return fmt.Sprintf("%.0f%%", math.Round(pct))
 }
 
 func bar(value, max float64) string {
