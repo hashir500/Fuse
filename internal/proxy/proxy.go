@@ -90,6 +90,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	outReq.URL = target
 	outReq.Host = target.Host
 	outReq.RequestURI = ""
+	outReq.Header = r.Header.Clone()
 	outReq.Body = io.NopCloser(bytes.NewReader(body))
 	outReq.ContentLength = int64(len(body))
 	provider.AddAuth(outReq, providerName, s.Config)
