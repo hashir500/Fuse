@@ -120,7 +120,7 @@ func CompactArt() string {
 	if Quiet() || NoMascot() {
 		return ""
 	}
-	return colorize(renderBraille(SparkLarge), Green)
+	return colorize(strings.Trim(SparkLarge, "\n"), Green)
 }
 
 func ConfigLoaded() {
@@ -164,7 +164,7 @@ func printArt() {
 	if NoMascot() {
 		return
 	}
-	fmt.Fprintln(output, colorize(renderBraille(SparkLarge), Green))
+	fmt.Fprintln(output, colorize(strings.Trim(SparkLarge, "\n"), Green))
 }
 
 func printCompact() {
@@ -175,7 +175,7 @@ func printCompact() {
 }
 
 func prefix() string {
-	return colorize(SparkSmall, Green)
+	return colorize("⚡", Green)
 }
 
 func line(message string) string {
